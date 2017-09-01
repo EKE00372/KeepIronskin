@@ -35,8 +35,8 @@ local function report(str,b)
 end
 
 local function keep(self,event,timestamp,eventtype,hideCaster,srcGUID, srcName, srcFlags,srcRFlags,dstGUID,dstName, dstFlags,dstRFlags,...)	
-	if UnitPosition("player") then return end --仅在副本中工作
-	if GetInspectSpecialization(dstName)~=268 then return end --仅目标为酒仙时工作
+	--if UnitPosition("player") then return end --仅在副本中工作
+	--if GetInspectSpecialization(dstName)~=268 then return end --仅目标为酒仙时工作
 	if not InCombatLockdown() then return end --仅在战斗中工作
 	
 	local spellid = select(1, ...)
@@ -53,7 +53,11 @@ local function keep(self,event,timestamp,eventtype,hideCaster,srcGUID, srcName, 
 		if eventtype == "SPELL_AURA_REMOVED" and spellid==215479  then 
 			report(dstName.."已经失去"..ISB.."，治疗注意！",false) 
 		end		
-	
+		if eventtype == "SPELL_ABSORBED"  then 
+			local a,b,c,d,e,f,g = select(5, ...)
+			if a ==115069 then print(a,d) end
+			if d ==115069 then print(d,g) end
+		end 
 end
 
 KeepIronskin = CreateFrame("frame") 
