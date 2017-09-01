@@ -35,12 +35,27 @@ local function report(str,b)
 end
 
 local function keep(self,event,timestamp,eventtype,hideCaster,srcGUID, srcName, srcFlags,srcRFlags,dstGUID,dstName, dstFlags,dstRFlags,...)	
+		
+		if eventtype == "SPELL_ABSORBED"  then --醉拳池更新
+			local a,b,c,d,e,f,g = select(5, ...)
+			if a ==115069 then
+				if not data[dstName] then  data[dstName]=CreateTable() end --建档
+				data[dstName].POOL = data[dstName].POOL + d 
+			end
+			if d ==115069 then 
+				if not data[dstName] then  data[dstName]=CreateTable() end --建档
+				data[dstName].POOL = data[dstName].POOL + g 
+			end
+		end 
+		
 	--if UnitPosition("player") then return end --仅在副本中工作
-	--if GetInspectSpecialization(dstName)~=268 then return end --仅目标为酒仙时工作
-	if not InCombatLockdown() then return end --仅在战斗中工作
+	if not InCombatLockdown() then return end 
+	if not data[dstName] then return end --仅酒仙工作
 	
-	local spellid = select(1, ...)
+	  --建立档案
 	
+		local spellid = select(1, ...)
+		--铁骨报告
 		if eventtype == "SWING_DAMAGE" and (not OnIronskin(dstName)) then 
 			report(dstName.."断铁骨被平砍命中，请覆盖"..ISB,true) 
 		end
@@ -53,11 +68,9 @@ local function keep(self,event,timestamp,eventtype,hideCaster,srcGUID, srcName, 
 		if eventtype == "SPELL_AURA_REMOVED" and spellid==215479  then 
 			report(dstName.."已经失去"..ISB.."，治疗注意！",false) 
 		end		
-		if eventtype == "SPELL_ABSORBED"  then 
-			local a,b,c,d,e,f,g = select(5, ...)
-			if a ==115069 then print(a,d) end
-			if d ==115069 then print(d,g) end
-		end 
+		
+		
+		
 end
 
 KeepIronskin = CreateFrame("frame") 
