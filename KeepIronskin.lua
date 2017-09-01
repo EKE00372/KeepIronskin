@@ -1,4 +1,4 @@
-﻿--------设置-----------
+--------设置-----------
 local tt = 2  --喊话最小间隔，默认2秒
 
 local whitelist = { --白名单，受到这些伤害时不会报告
@@ -8,6 +8,16 @@ local whitelist = { --白名单，受到这些伤害时不会报告
 --------core-----------
 local T,t = 0,0
 local ISB = GetSpellLink(215479)
+local data = {}
+
+local function CreateTable()
+	t = {
+	["DOT"] = 0,
+	["POOL"] = 0,
+	}
+	return t
+end 
+
 
 local function OnIronskin(dstName)
 	for i=1,40 do
