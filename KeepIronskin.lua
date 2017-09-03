@@ -71,8 +71,8 @@ local function keep(self,event,timestamp,eventtype,hideCaster,srcGUID, srcName, 
 		local p =(1 - data[dstName].DOT/data[dstName].POOL) --未出池伤害
 		local p1 = math.floor(p*1000)/10
 		if p1<minPurified and p1>0 then 
-			--report(dstName.."未出池伤害："..p1.."%,请更多使用"..PFB,false) 
-			SendChatMessage(dstName.."未出池伤害："..p1.."%,请更多使用"..PFB,"WHISPER",nil,"银之石")
+			report(dstName.."未出池伤害："..p1.."%,请更多使用"..PFB,false) 
+			
 		end 
 		if not OnAura(dstName,1022) then --无保护祝福时清零	
 			print(data[dstName].DOT,data[dstName].POOL) 
