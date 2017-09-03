@@ -27,6 +27,10 @@ local function OnIronskin(dstName,id)
 		local buffid = select(11,UnitBuff(dstName,i))
 		if buffid == id then return 1 end 
 	end
+	for i=1,40 do
+		local buffid = select(11,UnitDebuff(dstName,i))
+		if buffid == id then return 1 end 
+	end
 	return nil
 end
 
@@ -34,6 +38,7 @@ local function report(str,b)
 	if b then t = GetTime() if t-T >tt then T=t else return end end 
 	
 	SendChatMessage(str,"SAY") 
+
 		
 end
 
@@ -68,7 +73,7 @@ local function keep(self,event,timestamp,eventtype,hideCaster,srcGUID, srcName, 
 	end
 	
 	--活血报告
-	if eventtype == "SPELL_AURA_REMOVED" and (spellid==124273 or spellid==124274 or spellid==124275) then 
+	if eventtype == "SPELL_AURA_REMOVED" and (spellid==124273 or spellid==124274 or spellid==124275) and (not OnIronskin(dstName,124273)) and (not OnIronskin(dstName,124274)) and (not OnIronskin(dstName,124275)) then 
 		local p =(1 - data[dstName].DOT/data[dstName].POOL) --未出池伤害
 		local p1 = math.floor(p*1000)/10
 		if p1<minPurified then 
@@ -79,17 +84,6 @@ local function keep(self,event,timestamp,eventtype,hideCaster,srcGUID, srcName, 
 		
 	if not InCombatLockdown() then return end --以下仅在战斗中工作
 			
-	
---	if eventtype == "SWING_DAMAGE" and (not OnIronskin(dstName)) then 
---		report(dstName.."断铁骨被平砍命中，请覆盖"..ISB,true) 
---	end
---	if eventtype == "SPELL_DAMAGE" and (not OnIronskin(dstName)) and (not whitelist[spellid])then 
---		report(dstName.."断铁骨被"..GetSpellLink(spellid).."命中，请覆盖"..ISB,true) 
---	end
---	if eventtype == "SPELL_PERIODIC_DAMAGE" and (not OnIronskin(dstName)) and (not whitelist[spellid]) then 
-		--report(dstName.."断铁骨被"..GetSpellLink(spellid).."命中，请覆盖"..ISB,true) 
---	end
-
 	--铁骨报告
 	if eventtype == "SPELL_AURA_REMOVED" and spellid==215479  then 
 		report(dstName.."已经失去"..ISB.."，治疗注意！",false) 
