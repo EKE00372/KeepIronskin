@@ -22,15 +22,9 @@ local function CreateTable()
 end 
 
 
-local function OnIronskin(dstName,id)
-	for i=1,40 do
-		local buffid = select(11,UnitBuff(dstName,i))
-		if buffid == id then return 1 end 
-	end
-	for i=1,40 do
-		local buffid = select(11,UnitDebuff(dstName,i))
-		if buffid == id then return 1 end 
-	end
+local function OnAura(dstName,id)
+	local spellname = GetSpellInfo(id)
+	if UnitAura(dstName,spellname) then return 1 end 	
 	return nil
 end
 
@@ -53,14 +47,14 @@ local function keep(self,event,timestamp,eventtype,hideCaster,srcGUID, srcName, 
 		if a ==115069 then
 			if not data[dstName] then  data[dstName]=CreateTable() end --建档
 			data[dstName].POOL = data[dstName].POOL + d 
-			if not OnIronskin(dstName,215479) then 
+			if not OnAura(dstName,215479) then 
 				report(dstName.."断铁骨被"..MELEE.."命中，请覆盖"..ISB,true) 
 			end
 		end
 		if d ==115069 then 
 			if not data[dstName] then  data[dstName]=CreateTable() end --建档
 			data[dstName].POOL = data[dstName].POOL + g 
-			if (not OnIronskin(dstName,215479)) and (not whitelist[spellid]) then 
+			if (not OnAura(dstName,215479)) and (not whitelist[spellid]) then 
 				report(dstName.."断铁骨被"..GetSpellLink(spellid).."命中，请覆盖"..ISB,true)  
 			end
 		end
@@ -73,13 +67,18 @@ local function keep(self,event,timestamp,eventtype,hideCaster,srcGUID, srcName, 
 	end
 	
 	--活血报告
-	if eventtype == "SPELL_AURA_REMOVED" and (spellid==124273 or spellid==124274 or spellid==124275) and (not OnIronskin(dstName,124273)) and (not OnIronskin(dstName,124274)) and (not OnIronskin(dstName,124275)) then 
+	if eventtype == "SPELL_AURA_REMOVED" and (spellid==124273 or spellid==124274 or spellid==124275) and UnitStagger(dstName)==0 then 
 		local p =(1 - data[dstName].DOT/data[dstName].POOL) --未出池伤害
 		local p1 = math.floor(p*1000)/10
-		if p1<minPurified then 
-			report(dstName.."未出池伤害："..p1.."%,请更多使用"..PFB,false) 
+		if p1<minPurified and p1>0 then 
+			--report(dstName.."未出池伤害："..p1.."%,请更多使用"..PFB,false) 
+			SendChatMessage(dstName.."未出池伤害："..p1.."%,请更多使用"..PFB,"WHISPER",nil,"银之石")
 		end 
-		if not OnIronskin(dstName,1022) then data[dstName]=CreateTable() end --无保护祝福时清零		
+		if not OnAura(dstName,1022) then --无保护祝福时清零	
+			print(data[dstName].DOT,data[dstName].POOL) 
+			data[dstName]=CreateTable() 
+			print(data[dstName].DOT,data[dstName].POOL)
+		end 	
 	end	
 		
 	if not InCombatLockdown() then return end --以下仅在战斗中工作
