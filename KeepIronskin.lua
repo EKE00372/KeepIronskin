@@ -12,6 +12,7 @@ local ISB = GetSpellLink(215479) --铁骨酒LINK
 local MELEE = GetSpellLink(6603) --平砍LINK
 local PFB = GetSpellLink(119582) --活血酒LINK
 local data = {}
+local st,ss = 0,0
 
 local function CreateTable()
 	t = {
@@ -43,7 +44,6 @@ local function keep(self,event,timestamp,eventtype,hideCaster,srcGUID, srcName, 
 	--断铁骨报告，酒池状态
 	if eventtype == "SPELL_ABSORBED"  then --醉拳池更新
 		local a,b,c,d,e,f,g = select(5, ...)
-		--print(...)
 		if a ==115069 then
 			if not data[dstName] then  data[dstName]=CreateTable() end --建档
 			data[dstName].POOL = data[dstName].POOL + d 
@@ -58,26 +58,29 @@ local function keep(self,event,timestamp,eventtype,hideCaster,srcGUID, srcName, 
 				report(dstName.."断铁骨被"..GetSpellLink(spellid).."命中，请覆盖"..ISB,true)  
 			end
 		end
+		if a ==124255 then --醉拳吸收
+			data[dstName].DOT = data[dstName].DOT + g				
+		end 
 	end
 	if eventtype =="SPELL_PERIODIC_DAMAGE"  and spellid ==124255 then
 		local k = select(4, ...) --醉拳打脸
-		local a = select(9, ...) --醉拳吸收
-		data[dstName].DOT = data[dstName].DOT + k
-		data[dstName].DOT = data[dstName].DOT + a 
+		data[dstName].DOT = data[dstName].DOT + k		
 	end
-	
+
 	--活血报告
-	if eventtype == "SPELL_AURA_REMOVED" and (spellid==124273 or spellid==124274 or spellid==124275) and UnitStagger(dstName)==0 then 
+	if eventtype == "SPELL_AURA_REMOVED" and (spellid==124273 or spellid==124274 or spellid==124275) and UnitStagger(dstName)==0 then
+		st = GetTime()
+		ss = 1
+	end 
+	if GetTime()>st+0.6 and ss==1  then --上一跳醉拳dot是0.6秒以前
+		ss=0
 		local p =(1 - data[dstName].DOT/data[dstName].POOL) --未出池伤害
 		local p1 = math.floor(p*1000)/10
-		if p1<minPurified and p1>0 then 
-			report(dstName.."未出池伤害："..p1.."%,请更多使用"..PFB,false) 
-			
+		if p1<minPurified then 
+			report(dstName.."未出池伤害："..p1.."%,请更多使用"..PFB,false) 			
 		end 
 		if not OnAura(dstName,1022) then --无保护祝福时清零	
-			print(data[dstName].DOT,data[dstName].POOL) 
 			data[dstName]=CreateTable() 
-			print(data[dstName].DOT,data[dstName].POOL)
 		end 	
 	end	
 		
