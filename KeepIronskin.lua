@@ -41,12 +41,15 @@ local function keep(self,event,timestamp,eventtype,hideCaster,srcGUID, srcName, 
 	local spellid = select(1, ...)
 	if UnitPosition("player") then return end --仅在副本中工作
 		
+	
+	
 	--断铁骨报告，酒池状态
 	if eventtype == "SPELL_ABSORBED"  then --醉拳池更新
 		local a,b,c,d,e,f,g = select(5, ...)
 		if a ==115069 then
 			if not data[dstName] then  data[dstName]=CreateTable() end --建档
 			data[dstName].POOL = data[dstName].POOL + d 
+			ss=0
 			if not OnAura(dstName,215479) then 
 				report(dstName.."断铁骨被"..MELEE.."命中，请覆盖"..ISB,true) 
 			end
@@ -54,6 +57,7 @@ local function keep(self,event,timestamp,eventtype,hideCaster,srcGUID, srcName, 
 		if d ==115069 then 
 			if not data[dstName] then  data[dstName]=CreateTable() end --建档
 			data[dstName].POOL = data[dstName].POOL + g 
+			ss=0
 			if (not OnAura(dstName,215479)) and (not whitelist[spellid]) then 
 				report(dstName.."断铁骨被"..GetSpellLink(spellid).."命中，请覆盖"..ISB,true)  
 			end
@@ -64,25 +68,34 @@ local function keep(self,event,timestamp,eventtype,hideCaster,srcGUID, srcName, 
 	end
 	if eventtype =="SPELL_PERIODIC_DAMAGE"  and spellid ==124255 then
 		local k = select(4, ...) --醉拳打脸
-		data[dstName].DOT = data[dstName].DOT + k		
+		data[dstName].DOT = data[dstName].DOT + k
+--		print(data[dstName].DOT,"dddd")
 	end
+	
+	if ss==1 then --清空酒池报告未出池率  GetTime()>st+0.6 and
+		ss=0
+		local p =(1 - data[dstName].DOT/data[dstName].POOL) --未出池伤害
+		local p1 = math.floor(p*1000)/10		
+		if p1<minPurified then 
+			report(dstName.."未出池伤害："..p1.."%,请更多使用"..PFB,false) 			
+			SendChatMessage("未出池伤害："..p1.."%,请更多使用"..PFB,"WHISPER",nil,dstName)
+		else report(dstName.."未出池伤害："..p1.."%，打得不错！",false) 			
+		end 
+		if not OnAura(dstName,1022) then --无保护祝福时清零		
+--			print(data[dstName].DOT,data[dstName].POOL)
+			data[dstName]=CreateTable() 
+		end 	
+	end	
+	
 
 	--活血报告
 	if eventtype == "SPELL_AURA_REMOVED" and (spellid==124273 or spellid==124274 or spellid==124275) and UnitStagger(dstName)==0 then
 		st = GetTime()
 		ss = 1
+--		print(data[dstName].DOT,data[dstName].POOL)
+		--print(UnitStagger(dstName))
 	end 
-	if GetTime()>st+0.6 and ss==1  then --上一跳醉拳dot是0.6秒以前
-		ss=0
-		local p =(1 - data[dstName].DOT/data[dstName].POOL) --未出池伤害
-		local p1 = math.floor(p*1000)/10
-		if p1<minPurified then 
-			report(dstName.."未出池伤害："..p1.."%,请更多使用"..PFB,false) 			
-		end 
-		if not OnAura(dstName,1022) then --无保护祝福时清零	
-			data[dstName]=CreateTable() 
-		end 	
-	end	
+	
 		
 	if not InCombatLockdown() then return end --以下仅在战斗中工作
 			
