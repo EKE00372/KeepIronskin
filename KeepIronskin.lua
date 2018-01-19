@@ -5,7 +5,8 @@ local setting = {
 Enable = true,  --总开关（默认开）
 WHISPER = false, --密语功能开关（默认关）
 Isbapplied = false, --铁骨上身时是否报告，false：不报告，true：报告
-minPurified = 30, --未出池伤害最小比例
+MaxStaggerTaken = 80, --醉拳DOT的最大跳出比例 
+Purified = true,  --是否报告活血使用恰当，如果脱战时跳出比例低于最大比例-10%，则报告“打得不错”
 whitelist = { --白名单，受到这些伤害时不会报告
 	[209858]=true, --死疽
 	[124255]=true, --醉拳
@@ -19,7 +20,6 @@ local ISB = GetSpellLink(215479) --铁骨酒LINK
 local MELEE = GetSpellLink(6603) --平砍LINK
 local PFB = GetSpellLink(119582) --活血酒LINK
 local data = {} --酒池数据
-local st,ss = 0,0
 
 
 local function CreateTable() --建档
@@ -57,7 +57,6 @@ local function keep(self,event,timestamp,eventtype,hideCaster,srcGUID, srcName, 
 		if a ==115069 then
 			if not data[dstName] then  data[dstName]=CreateTable() end --建档
 			data[dstName].POOL = data[dstName].POOL + d 
-			ss=0
 			if not OnAura(dstName,215479) then 
 				report(dstName.."断铁骨被"..MELEE.."命中，请覆盖"..ISB,true) 
 			end
@@ -65,7 +64,6 @@ local function keep(self,event,timestamp,eventtype,hideCaster,srcGUID, srcName, 
 		if d ==115069 then 
 			if not data[dstName] then  data[dstName]=CreateTable() end --建档
 			data[dstName].POOL = data[dstName].POOL + g 
-			ss=0
 			if (not OnAura(dstName,215479)) and (not setting.whitelist[spellid]) then 
 				report(dstName.."断铁骨被"..GetSpellLink(spellid).."命中，请覆盖"..ISB,true)  
 			end
@@ -74,41 +72,33 @@ local function keep(self,event,timestamp,eventtype,hideCaster,srcGUID, srcName, 
 			data[dstName].DOT = data[dstName].DOT + g				
 		end 
 	end
-	if eventtype =="SPELL_PERIODIC_DAMAGE"  and spellid ==124255 then
-		local k = select(4, ...) --醉拳打脸
+	
+	if eventtype =="SPELL_PERIODIC_DAMAGE"  and spellid ==124255 then	--醉拳打脸
+		local k = select(4, ...) --打脸
+		local l = select(9, ...) --吸收
+		local p =0
 		data[dstName].DOT = data[dstName].DOT + k
---		print(data[dstName].DOT,"dddd")
+		if l then data[dstName].DOT = data[dstName].DOT + l end
+		p = data[dstName].DOT/data[dstName].POOL
+		
+		if  p > setting.MaxStaggerTaken/100 then 		--醉拳承受过高
+			p=math.floor(p*1000)/10
+			report(dstName.." 的醉拳DOT承受："..p.."%，请更多使用"..PFB,true) 			
+		end 
 	end
 	
-	if ss==1 then --清空酒池报告未出池率  Gesetting.ttime()>st+0.6 and
-		ss=0
-		local p =(1 - data[dstName].DOT/data[dstName].POOL) --未出池伤害
-		local p1 = math.floor(p*1000)/10		
-		if p1<setting.minPurified then 
-			report(dstName.."未出池伤害："..p1.."%,请更多使用"..PFB,false) 			
-		if setting.WHISPER then  SendChatMessage("未出池伤害："..p1.."%,请更多使用"..PFB,"WHISPER",nil,dstName) end 
-		--	print(data[dstName].DOT,data[dstName].POOL)
-		else report(dstName.."未出池伤害："..p1.."%，打得不错！",false) 			
-		end 
-		if not OnAura(dstName,1022) then --无保护祝福时清零		
---			print(data[dstName].DOT,data[dstName].POOL)
-			data[dstName]=CreateTable() 
-		end 	
-	end	
-	
-
-	--活血报告
-	if eventtype == "SPELL_AURA_REMOVED" and (spellid==124273 or spellid==124274 or spellid==124275) and UnitStagger(dstName)==0 then
-		st = GetTime()
-		ss = 1
---		print(data[dstName].DOT,data[dstName].POOL)
-		--print(UnitStagger(dstName))
-	end 
-	
+	if UnitStagger(dstName)==0 and data[dstName].POOL ~= 0 and not InCombatLockdown() then	--酒池脱战清零
+		p = data[dstName].DOT/data[dstName].POOL
 		
- --以下仅在战斗中工作
-			
-	--铁骨报告
+		if  p < (setting.MaxStaggerTaken-10)/100 and setting.Purified then  --醉拳消除不错
+			p=math.floor(p*1000)/10
+			report(dstName.." 本次战斗醉拳DOT承受："..p.."%，打得不错！",false) 			
+		end 
+		data[dstName]=CreateTable() 
+	end
+	
+				
+	--铁骨报告，仅在战斗中工作
 	if eventtype == "SPELL_AURA_REMOVED" and spellid==215479 and InCombatLockdown()  then 
 		report(dstName.."已经失去"..ISB.."，治疗注意！",false) 
 	end	
