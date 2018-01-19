@@ -37,11 +37,11 @@ local function OnAura(dstName,id)
 	return nil
 end
 
-local function report(str,b)
+local function report(str,b,ID)
 	if b then t = GetTime() if t-T >setting.tt then T=t else return end end 
 	
 	SendChatMessage(str,"SAY") 
-
+	if setting.WHISPER then SendChatMessage(str,"WHISPER",nil,ID) end 
 		
 end
 
@@ -58,32 +58,37 @@ local function keep(self,event,timestamp,eventtype,hideCaster,srcGUID, srcName, 
 			if not data[dstName] then  data[dstName]=CreateTable() end --建档
 			data[dstName].POOL = data[dstName].POOL + d 
 			if not OnAura(dstName,215479) then 
-				report(dstName.."断铁骨被"..MELEE.."命中，请覆盖"..ISB,true) 
+				report(dstName.."断铁骨被"..MELEE.."命中，请覆盖"..ISB,true,dstName) 
 			end
 		end
 		if d ==115069 then 
 			if not data[dstName] then  data[dstName]=CreateTable() end --建档
 			data[dstName].POOL = data[dstName].POOL + g 
 			if (not OnAura(dstName,215479)) and (not setting.whitelist[spellid]) then 
-				report(dstName.."断铁骨被"..GetSpellLink(spellid).."命中，请覆盖"..ISB,true)  
+				report(dstName.."断铁骨被"..GetSpellLink(spellid).."命中，请覆盖"..ISB,true,dstName)  
 			end
 		end
-		if a ==124255 then --醉拳吸收
-			data[dstName].DOT = data[dstName].DOT + g				
+		
+		--醉拳DOT被吸收
+		local s = select(1,...)
+		local dot = select(11,...)
+		if s ==124255 then 
+			data[dstName].DOT = data[dstName].DOT + dot		
+		--	print(data[dstName].DOT,data[dstName].POOL)			
 		end 
 	end
 	
 	if eventtype =="SPELL_PERIODIC_DAMAGE"  and spellid ==124255 then	--醉拳打脸
 		local k = select(4, ...) --打脸
-		local l = select(9, ...) --吸收
 		local p =0
 		data[dstName].DOT = data[dstName].DOT + k
-		if l then data[dstName].DOT = data[dstName].DOT + l end
+		
 		p = data[dstName].DOT/data[dstName].POOL
 		
+		--print(data[dstName].DOT,data[dstName].POOL)
 		if  p > setting.MaxStaggerTaken/100 then 		--醉拳承受过高
 			p=math.floor(p*1000)/10
-			report(dstName.." 的醉拳DOT承受："..p.."%，请更多使用"..PFB,true) 			
+			report(dstName.." 的醉拳DOT承受："..p.."%，请更多使用"..PFB,true,dstName) 			
 		end 
 	end
 	
