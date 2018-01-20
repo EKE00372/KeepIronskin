@@ -91,7 +91,7 @@ local function keep(self,event,timestamp,eventtype,hideCaster,srcGUID, srcName, 
 			report(dstName.." 的醉拳DOT承受："..p.."%，请更多使用"..PFB,true,dstName) 			
 		end 
 	end
-	
+	if data[dstName] then 
 	if UnitStagger(dstName)==0 and data[dstName].POOL ~= 0 and not InCombatLockdown() then	--酒池脱战清零
 		p = data[dstName].DOT/data[dstName].POOL
 		
@@ -101,6 +101,7 @@ local function keep(self,event,timestamp,eventtype,hideCaster,srcGUID, srcName, 
 		end 
 		data[dstName]=CreateTable() 
 	end
+	end 
 	
 				
 	--铁骨报告，仅在战斗中工作
