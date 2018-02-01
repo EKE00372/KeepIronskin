@@ -95,7 +95,7 @@ local function keep(self,event,timestamp,eventtype,hideCaster,srcGUID, srcName, 
 	if UnitStagger(dstName)==0 and data[dstName].POOL ~= 0 and not InCombatLockdown() then	--酒池脱战清零
 		p = data[dstName].DOT/data[dstName].POOL
 		
-		if  p < (setting.MaxStaggerTaken-10)/100 and setting.Purified then  --醉拳消除不错
+		if  0< p < (setting.MaxStaggerTaken-10)/100 and setting.Purified then  --醉拳消除不错
 			p=math.floor(p*1000)/10
 			report(dstName.." 本次战斗醉拳DOT承受："..p.."%，打得不错！",false) 			
 		end 
