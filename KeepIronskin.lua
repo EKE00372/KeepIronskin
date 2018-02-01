@@ -86,7 +86,7 @@ local function keep(self,event,timestamp,eventtype,hideCaster,srcGUID, srcName, 
 		p = data[dstName].DOT/data[dstName].POOL
 		
 		--print(data[dstName].DOT,data[dstName].POOL)
-		if  p > setting.MaxStaggerTaken/100 then 		--醉拳承受过高
+		if  p > setting.MaxStaggerTaken/100 and k>200000 then 		--醉拳承受过高
 			p=math.floor(p*1000)/10
 			report(dstName.." 的醉拳DOT承受："..p.."%，请更多使用"..PFB,true,dstName) 			
 		end 
