@@ -78,15 +78,16 @@ local function keep(self,event,timestamp,eventtype,hideCaster,srcGUID, srcName, 
 		end 
 	end
 	
-	if eventtype =="SPELL_PERIODIC_DAMAGE"  and spellid ==124255 then	--醉拳打脸
+	if eventtype =="SPELL_PERIODIC_DAMAGE"  and spellid ==124255 then	--醉拳打脸		
 		local k = select(4, ...) --打脸
-		local p =0
+		local p =0		
 		data[dstName].DOT = data[dstName].DOT + k
 		
 		p = data[dstName].DOT/data[dstName].POOL
 		
-		--print(data[dstName].DOT,data[dstName].POOL)
-		if  p > setting.MaxStaggerTaken/100 and k>200000 then 		--醉拳承受过高
+		--print(data[dstName].DOT,data[dstName].POOL,format('%.2f',p),setting.MaxStaggerTaken,k)
+		
+		if  p and p > setting.MaxStaggerTaken/100 and k>200000 then 		--醉拳承受过高
 			p=math.floor(p*1000)/10
 			report(dstName.." 的醉拳DOT承受："..p.."%，请更多使用"..PFB,true,dstName) 			
 		end 
@@ -94,8 +95,8 @@ local function keep(self,event,timestamp,eventtype,hideCaster,srcGUID, srcName, 
 	if data[dstName] then 
 	if UnitStagger(dstName)==0 and data[dstName].POOL ~= 0 and not InCombatLockdown() then	--酒池脱战清零
 		p = data[dstName].DOT/data[dstName].POOL
-		
-		if  0< p < (setting.MaxStaggerTaken-10)/100 and setting.Purified then  --醉拳消除不错
+		--print(p,(setting.MaxStaggerTaken-10)/100)
+		if  p>0 and p < (setting.MaxStaggerTaken-10)/100 and setting.Purified then  --醉拳消除不错
 			p=math.floor(p*1000)/10
 			report(dstName.." 本次战斗醉拳DOT承受："..p.."%，打得不错！",false) 			
 		end 
