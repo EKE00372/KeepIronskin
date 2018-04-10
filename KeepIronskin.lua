@@ -16,7 +16,7 @@ w = false,			 	--密语开关，如果打开，将会抄送一份报告密语给
 isbapply = false, 		--是否报告铁骨上身
 isbfade = true,			--是否报告铁骨消失
 pfblvl = true, 			--是否报告活血使用水平 如果醉拳承受超过醉拳承受率上限提示使用更多活血
-casts = false,			--是否报告技能使用情况
+casts = true,			--是否报告技能使用情况
 hit = true, 			--是否报告断铁骨时被命中
 purify = true, 			--是否报告裸活血
 }
@@ -77,16 +77,17 @@ local function PrintTable(name,tab)
 		p = math.floor(p*1000)/10
 	local q = 1-tab.isb/tab.hits
 		q = math.floor(q*1000)/10
-				
-	print("玩家："..name.."的本次战斗结束","战斗时长："..shortnum(tab.combatend-tab.combatstart).."秒")
-	--print("醉拳承受："..shortnum(tab.dot),"醉拳吸收："..shortnum(tab.pool),"活血率："..p.."%")
-	print("活血率："..p.."%")
-	--print("被命中次数："..tab.hits,"其中断铁骨被命中次数："..tab.isb,"覆盖率："..q.."%")
-	print("铁骨覆盖率："..q.."%")
-	print("裸活血次数："..tab.purify)	
-	print("施法统计：")
-	for id,count in pairs(tab.casts) do 		
-		print(GetSpellLink(id),count)
+	if  config.casts then 
+		print("玩家："..name.."的本次战斗结束","战斗时长："..shortnum(tab.combatend-tab.combatstart).."秒")
+		--print("醉拳承受："..shortnum(tab.dot),"醉拳吸收："..shortnum(tab.pool),"活血率："..p.."%")
+		print("活血率："..p.."%")
+		--print("被命中次数："..tab.hits,"其中断铁骨被命中次数："..tab.isb,"覆盖率："..q.."%")
+		print("铁骨覆盖率："..q.."%")
+		print("裸活血次数："..tab.purify)	
+		print("施法统计：")
+		for id,count in pairs(tab.casts) do 		
+			print(GetSpellLink(id),count)
+		end 
 	end 
 	data[name] = nil
 end 
@@ -176,7 +177,7 @@ local function trigger(self,event,timestamp,eventtype,hideCaster,srcGUID, srcNam
 	if GetTime()>checkpool+3 then  --每3秒检查是否脱战
 		checkpool = GetTime()
 		for name,tab in pairs(data) do  --遍历表，查看酒仙酒池是否归零
-			if UnitStagger(name)==0 and tab.pool>0 and config.casts then --如果目标酒池归零，视为脱战
+			if UnitStagger(name)==0 and tab.pool>0 then --如果目标酒池归零，视为脱战
 			--开始计算战斗时长，铁骨覆盖率，活血率，技能使用情况
 				
 				PrintTable(name,tab)
