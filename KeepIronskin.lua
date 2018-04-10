@@ -77,7 +77,7 @@ local function PrintTable(name,tab)
 		p = math.floor(p*1000)/10
 	local q = 1-tab.isb/tab.hits
 		q = math.floor(q*1000)/10
-	if  config.casts then 
+	if  config.casts and p<80 then 
 		print("玩家："..name.."的本次战斗结束","战斗时长："..shortnum(tab.combatend-tab.combatstart).."秒")
 		--print("醉拳承受："..shortnum(tab.dot),"醉拳吸收："..shortnum(tab.pool),"活血率："..p.."%")
 		print("活血率："..p.."%")
@@ -169,7 +169,7 @@ local function trigger(self,event,timestamp,eventtype,hideCaster,srcGUID, srcNam
 			p = data[dstName].dot/data[dstName].pool
 			if p > config.MaxStaggerTaken/100 and other[4]>config.Maxdot then 		--醉拳承受过高
 				p=math.floor(p*1000)/10
-				if config.pfblvl then report(dstName.." 的醉拳dot承受："..p.."%，请更多使用"..spell.pfb,true,dstName) end 
+				if config.pfblvl then report(dstName.." 的醉拳dot承受："..p.."%，请更多使用"..GetSpellLink(spell.pfb),true,dstName) end 
 			end 
 		end 
 	end
