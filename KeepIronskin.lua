@@ -174,7 +174,7 @@ local function trigger(self,event,timestamp,eventtype,hideCaster,srcGUID, srcNam
 		end 
 	end
 	
-	if GetTime()>checkpool+3 then  --每3秒检查是否脱战
+	if GetTime()>checkpool+3 and not InCombatLockdown() then  --每3秒检查是否脱战
 		checkpool = GetTime()
 		for name,tab in pairs(data) do  --遍历表，查看酒仙酒池是否归零
 			if UnitStagger(name)==0 and tab.pool>0 then --如果目标酒池归零，视为脱战
