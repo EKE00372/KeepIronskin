@@ -115,7 +115,7 @@ local function trigger(self,event,timestamp,eventtype,hideCaster,srcGUID, srcNam
 	
 	if eventtype == "SPELL_AURA_REMOVED" and other[1]==buff.isb  then --铁骨消失
 
-		if config.isbfade then report(dstName.."已经失去"..GetSpellLink(spell.isb) .."，治疗注意！",false)  end 
+		if config.isbfade not InCombatLockdown() then report(dstName.."已经失去"..GetSpellLink(spell.isb) .."，治疗注意！",false)  end 
 	end	
 	if eventtype == "SPELL_AURA_APPLIED" and other[1]==buff.isb  then --铁骨上身
 
