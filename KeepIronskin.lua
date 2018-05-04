@@ -111,7 +111,7 @@ local function trigger(self,event,timestamp,eventtype,hideCaster,srcGUID, srcNam
 	local other = {...}
 	
 	if not config.Enable then return end --总开关
-	if UnitPosition("player") then return end --仅在副本中工作
+	if UnitPosition("player") and  not GetMapInfo():find("Helheim") then return end --仅在副本中工作
 	
 	if eventtype == "SPELL_AURA_REMOVED" and other[1]==buff.isb  then --铁骨消失
 
