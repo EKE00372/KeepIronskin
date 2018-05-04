@@ -80,10 +80,9 @@ local function PrintTable(name,tab)
 	if  config.casts and p<80 then 
 		print("玩家："..name.."的本次战斗结束","战斗时长："..shortnum(tab.combatend-tab.combatstart).."秒")
 		--print("醉拳承受："..shortnum(tab.dot),"醉拳吸收："..shortnum(tab.pool),"活血率："..p.."%")
-		print("活血率："..p.."%")
+		print("活血率："..p.."%  ","铁骨覆盖率："..q.."%")
 		--print("被命中次数："..tab.hits,"其中断铁骨被命中次数："..tab.isb,"覆盖率："..q.."%")
-		print("铁骨覆盖率："..q.."%")
-		print("裸活血次数："..tab.purify)	
+		if tab.purify>0 then print("裸活血次数："..tab.purify)	end 
 		print("施法统计：")
 		for id,count in pairs(tab.casts) do 		
 			print(GetSpellLink(id),count)
