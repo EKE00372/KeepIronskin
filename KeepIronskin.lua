@@ -32,6 +32,7 @@ local spell = {
 ["tp"] = 100780,--猛虎掌
 ["bob"] = 115399,--玄牛酒
 ["bof"] = 115181,--火焰之息
+["bos"] = 205523,--幻灭猛击
 ["stagger"] = 115069, --醉拳
 ["dot"] =124255, --醉拳dot
 }
@@ -62,6 +63,7 @@ local function CreateTable() --建档
 		[spell.tp] = 0,
 		[spell.bob] = 0,
 		[spell.bof] = 0,		
+		[spell.bos] = 0,		
 		},	
 	}
 	return t
@@ -196,3 +198,4 @@ KeepIronskin:SetScript("OnEvent",trigger)
 
 SLASH_KeepIronskin1 = "/kpis"
 SlashCmdList["KeepIronskin"] = function () if config.Enable then config.Enable = false print("KeepIronskin已经关闭") else config.Enable = true print("KeepIronskin已经开启") end end 
+
